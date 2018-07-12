@@ -62,7 +62,7 @@ resource "aws_alb_listener" "alb_front_https" {
   port              = "443"
   protocol          = "HTTPS"
   ssl_policy        = "ELBSecurityPolicy-2016-08"
-  certificate_arn   = "${aws_alb_target_group.alb_front_https.arn}"
+  #certificate_arn   = "${aws_alb_target_group.alb_front_https.arn}" # modify to add cert arn
 
   default_action {
     target_group_arn = "${aws_alb_target_group.alb_front_https.arn}"

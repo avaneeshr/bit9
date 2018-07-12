@@ -18,30 +18,24 @@ variable "password" {}
 
 # Create RDS instance
 resource "aws_db_instance" "master-rds" {
-  identifier = "dev-mssql-rds"
-  allocated_storage = 30 # increase/decrease as required
 
-  engine = "sqlserver-ex"
-  engine_version = "14.00.1000.169.v1"
-  instance_class = "db.r4.2xlarge" # change class as required
-  name = "dev-db" # change name or use variable
-
-  username = "${var.username}"
-  password = "${var.password}"
-  port = "1433"
-  iam_database_authentication_enabled = true
-
-  vpc_security_group_ids = ["${var.rds_sg}"]
-  db_subnet_group_name = "${aws_db_subnet_group.default.id}"
-
-  maintenance_window = "Mon:00:00-Mon:03:00"
-  backup_window = "03:50-04:20"
-  backup_retention_period = "3"
-  # Snapshot name upton DB deletion
+  depends_on                = ["aws_db_subnet_group.default_rds_mssql"]
+  identifier                = "dev-mssql"
+  allocated_storage         = "30"
+  license_model             = "license-included"
+  storage_type              = "gp2"
+  engine                    = "sqlserver-se"
+  engine_version            = "12.00.4422.0.v1"
+  instance_class            = "db.m1.small" # change instance class
+  multi_az                  = "true"
+  username                  = "${var.username}"
+  password                  = "${var.password}"
+  vpc_security_group_ids    = ["${var.rds_sg}"]
+  db_subnet_group_name      = "${aws_db_subnet_group.default_rds_mssql.id}"
+  backup_retention_period   = 3
+  skip_final_snapshot       = true
   final_snapshot_identifier = "dev-db"
-
-  #create_db_parameter_group = false
-  license_model = "license_included" # m
+  
 
   tags = {
       Owner = "owner name"
@@ -50,7 +44,7 @@ resource "aws_db_instance" "master-rds" {
 
 }
 # Subnet group 
-resource "aws_db_subnet_group" "default" {
+resource "aws_db_subnet_group" "default_rds_mssql" {
   name        = "main_subnet_group"
   description = "Our main group of subnets"
   subnet_ids  = ["${var.private_subnet_id_1}", "${var.private_subnet_id_2}"]
